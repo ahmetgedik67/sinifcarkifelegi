@@ -55,6 +55,15 @@
     30% { transform: translateY(-16px) scale(1.07); }
     60% { transform: translateY(0) scale(.97); }
   }
+  .mute-btn {
+    position: absolute; right: 14px; top: 14px; z-index: 5;
+    width: 42px; height: 42px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.14);
+    color: #fff; font-size: 19px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .15s, transform .15s;
+  }
+  .mute-btn:hover { background: rgba(255,255,255,.28); transform: scale(1.08); }
   header h1 { font-size: clamp(28px, 4.5vw, 44px); letter-spacing: .5px; text-shadow: 0 4px 18px rgba(0,0,0,.35); }
   header .subtitle { color: #e0e7ff; margin-top: 8px; font-size: clamp(14px, 2vw, 17px); }
 
@@ -210,6 +219,7 @@ iVBORw0KGgoAAAANSUhEUgAAAeAAAAFACAYAAABkyK97AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
     <h1>🎡 Sınıf Çarkıfeleği</h1>
     <p class="subtitle">Tanışma etkinliği ve oturma planı için isim çekme çarkı</p>
   </div>
+  <button id="muteBtn" class="mute-btn" title="Sesi kapat" aria-label="Sesi aç/kapat">🔊</button>
 </header>
 
 <main>
@@ -294,31 +304,50 @@ iVBORw0KGgoAAAANSUhEUgAAAeAAAAFACAYAAABkyK97AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
 
   /* ---------- Ses (Web Audio, dosya gerekmez) ---------- */
   let audioCtx = null;
+  let muted = localStorage.getItem('carkSes') === 'kapali';
+  let audioUnlocked = false;
+  const unlockAudio = () => { audioUnlocked = true; };
+  document.addEventListener('pointerdown', unlockAudio, { once: true });
+  document.addEventListener('keydown', unlockAudio, { once: true });
   function ensureAudio() {
+    if (muted || !audioUnlocked) return;
     if (!audioCtx) {
       try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
       catch (e) { audioCtx = null; }
     }
     if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   }
-  function beep(freq, dur, type, vol, when) {
-    if (!audioCtx) return;
+  function beep(freq, dur, type, vol, when, glideTo) {
+    if (!audioCtx || muted) return;
     const t = audioCtx.currentTime + (when || 0);
     const o = audioCtx.createOscillator();
     const g = audioCtx.createGain();
     o.type = type || 'square';
-    o.frequency.value = freq;
+    o.frequency.setValueAtTime(freq, t);
+    if (glideTo) o.frequency.exponentialRampToValueAtTime(Math.max(30, glideTo), t + dur);
     g.gain.setValueAtTime(vol || 0.08, t);
     g.gain.exponentialRampToValueAtTime(0.001, t + dur);
     o.connect(g); g.connect(audioCtx.destination);
     o.start(t); o.stop(t + dur);
   }
-  function tickSound() { beep(750, 0.05, 'square', 0.07); }
-  function winSound() {
-    beep(880, 0.12, 'sine', 0.12, 0);
-    beep(1318, 0.2, 'sine', 0.12, 0.09);
-    beep(1760, 0.28, 'sine', 0.1, 0.18);
+  // ---- Ses efektleri ----
+  function spinStartSound() { beep(180, 0.55, 'sawtooth', 0.05, 0, 1400); }   // vınlayan hızlanma
+  function tickSound(progress) {                                                // hız azaldıkça pesleşen tik
+    const f = Math.round(950 - 480 * (progress || 0));
+    beep(f, 0.045, 'square', 0.06);
   }
+  function stopThunk() { beep(160, 0.1, 'sine', 0.16); }                       // çarkın durma tok sesi
+  function winSound() {                                                         // zafer tantanası
+    beep(523, 0.14, 'triangle', 0.13, 0.12);
+    beep(659, 0.14, 'triangle', 0.13, 0.24);
+    beep(784, 0.14, 'triangle', 0.13, 0.36);
+    beep(1047, 0.4, 'triangle', 0.15, 0.48);
+    beep(523, 0.55, 'sine', 0.05, 0.48);
+    beep(659, 0.55, 'sine', 0.05, 0.48);
+    beep(784, 0.55, 'sine', 0.05, 0.48);
+  }
+  function popSound() { beep(880, 0.06, 'sine', 0.09); }                      // tıklama
+  function undoPop() { beep(520, 0.09, 'sine', 0.08, 0, 240); }               // geri alma (pesleşen blip)
 
   /* ---------- Konfeti ---------- */
   function launchConfetti() {
@@ -506,6 +535,8 @@ iVBORw0KGgoAAAANSUhEUgAAAeAAAAFACAYAAABkyK97AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
 
   function buildWheel() {
     if (animId) return;
+    ensureAudio();
+    popSound();
     allNames = parseNames($('namesInput').value);
     names = allNames.slice();
     picked = [];
@@ -518,6 +549,8 @@ iVBORw0KGgoAAAANSUhEUgAAAeAAAAFACAYAAABkyK97AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
 
   function undo() {
     if (!picked.length || animId) return;
+    ensureAudio();
+    undoPop();
     names.unshift(picked.pop());
     $('lastPick').textContent = picked.length ? '🏆 ' + picked[picked.length - 1] : '🎲 Henüz seçilmedi';
     updateUI();
@@ -526,6 +559,8 @@ iVBORw0KGgoAAAANSUhEUgAAAeAAAAFACAYAAABkyK97AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
 
   function reset() {
     if (animId) return;
+    ensureAudio();
+    popSound();
     names = allNames.slice();
     picked = [];
     rotation = 0;
@@ -561,6 +596,7 @@ iVBORw0KGgoAAAANSUhEUgAAAeAAAAFACAYAAABkyK97AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
     lastTickIndex = idxOf(rotation);
     lastTickTime = 0;
     setSpinning(true);
+    spinStartSound();
 
     function frame(t) {
       const p = Math.min(1, (t - startTime) / duration);
@@ -569,7 +605,7 @@ iVBORw0KGgoAAAANSUhEUgAAAeAAAAFACAYAAABkyK97AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
       const ii = idxOf(rotation);
       if (ii !== lastTickIndex) {
         lastTickIndex = ii;
-        if (t - lastTickTime > 35) { lastTickTime = t; tickSound(); }
+        if (t - lastTickTime > 35) { lastTickTime = t; tickSound(p); }
       }
       draw();
 
@@ -591,7 +627,8 @@ iVBORw0KGgoAAAANSUhEUgAAAeAAAAFACAYAAABkyK97AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
     picked.push(winner);
     updateUI();
     setSpinning(false);
-    winSound();
+    stopThunk();   // çarkın durma tok sesi
+    winSound();    // zafer tantanası
     launchConfetti();
     $('lastPick').textContent = '🏆 ' + winner;
     $('modalName').textContent = winner;
@@ -603,6 +640,7 @@ iVBORw0KGgoAAAANSUhEUgAAAeAAAAFACAYAAABkyK97AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
   }
 
   function closeModal() {
+    popSound();
     $('modal').classList.remove('show');
     const ro = $('robi');
     if (ro) ro.classList.remove('celebrate');
@@ -610,6 +648,15 @@ iVBORw0KGgoAAAANSUhEUgAAAeAAAAFACAYAAABkyK97AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
   }
 
   /* ---------- Olaylar ---------- */
+  $('muteBtn').addEventListener('click', () => {
+    muted = !muted;
+    localStorage.setItem('carkSes', muted ? 'kapali' : 'acik');
+    $('muteBtn').textContent = muted ? '🔇' : '🔊';
+    $('muteBtn').title = muted ? 'Sesi aç' : 'Sesi kapat';
+    if (!muted) ensureAudio();
+  });
+  $('muteBtn').textContent = muted ? '🔇' : '🔊';
+  $('muteBtn').title = muted ? 'Sesi aç' : 'Sesi kapat';
   $('buildBtn').addEventListener('click', buildWheel);
   $('spinBtn').addEventListener('click', spin);
   $('undoBtn').addEventListener('click', undo);

@@ -20,7 +20,8 @@ Tanışma etkinliği ve sınıf oturma planı için animasyonlu isim çekme çar
 ## Özellikler
 
 - 🎡 Renkli, animasyonlu çarkıfelek (çizim + yumuşak yavaşlama)
-- 🔊 Dönüş sırasında tik sesi, kazananda konfeti + kutlama sesi (ses dosyası gerekmez)
+- 🔊 Tam sesli deneyim (ses dosyası gerekmez): çark hızlanırken vınlama, yavaşladıkça pesleşen tikler, durma tok sesi, kazanan için zafer tantanası ve düğme tıklamaları
+- 🔇 Sağ üstteki ses düğmesiyle ses açılıp kapatılabilir (tercih hatırlanır)
 - 🏆 Kazanan penceresi ve seçim geçmişi listesi
 - 🤖 **Robi** maskotu: her kazanan açıklandığında sevinçle zıplar
 - ↩️ Geri Al ve 🔁 Sıfırla kontrolleri
