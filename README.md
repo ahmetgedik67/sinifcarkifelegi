@@ -22,6 +22,7 @@ Tanışma etkinliği ve sınıf oturma planı için animasyonlu isim çekme çar
 - 🎡 Renkli, animasyonlu çarkıfelek (çizim + yumuşak yavaşlama)
 - 🔊 Dönüş sırasında tik sesi, kazananda konfeti + kutlama sesi (ses dosyası gerekmez)
 - 🏆 Kazanan penceresi ve seçim geçmişi listesi
+- 🤖 **Robi** maskotu: her kazanan açıklandığında sevinçle zıplar
 - ↩️ Geri Al ve 🔁 Sıfırla kontrolleri
 - 📱 Telefon, tablet ve projeksiyonda çalışan duyarlı (responsive) tasarım
 - 🔒 İnternet gerektirmez; öğrenci isimleri yalnızca tarayıcıda kalır, hiçbir sunucuya gönderilmez
