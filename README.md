@@ -9,7 +9,7 @@ Tanışma etkinliği ve sınıf oturma planı için animasyonlu isim çekme çar
 
 ## Nasıl Kullanılır?
 
-1. `carkifelek.html` dosyasını herhangi bir tarayıcıda açın (internet gerekmez).
+1. `index.html` dosyasını herhangi bir tarayıcıda açın (internet gerekmez).
 2. Soldaki alana öğrenci isimlerini yazın (her satıra bir isim veya virgülle ayırarak).
 3. **🔄 Çarkı Oluştur** düğmesine basın — isimler çarkın dilimlerine yerleşir.
 4. **🎯 Çevir** düğmesine basın — çark döner ve bir isimde durur.
