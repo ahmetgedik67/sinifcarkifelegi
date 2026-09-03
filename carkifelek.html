@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sınıf Çarkıfeleği – Bilfen Bilişim Zümresi</title>
+<!--
+  Sınıf Çarkıfeleği – Tanışma etkinliği ve oturma planı için isim çekme çarkı.
+  Tek dosyalık, internet gerektirmez. Bilişim Teknolojileri ve Yazılım dersi için hazırlanmıştır.
+-->
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --indigo: #4f46e5;
+    --violet: #7c3aed;
+    --ink: #1e293b;
+    --muted: #64748b;
+    --line: #e2e8f0;
+  }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #312e81 0%, #4f46e5 45%, #7c3aed 100%);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Dekoratif arka plan */
+  .bg-decor { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .bg-decor::before, .bg-decor::after {
+    content: ''; position: absolute; border-radius: 50%; filter: blur(8px); opacity: .22;
+  }
+  .bg-decor::before { width: 420px; height: 420px; background: #f59e0b; top: -120px; left: -100px; animation: float 12s ease-in-out infinite; }
+  .bg-decor::after  { width: 380px; height: 380px; background: #22d3ee; bottom: -110px; right: -90px; animation: float 15s ease-in-out infinite reverse; }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(34px); } }
+
+  header { position: relative; z-index: 1; text-align: center; padding: 26px 16px 6px; color: #fff; }
+  header h1 { font-size: clamp(28px, 4.5vw, 44px); letter-spacing: .5px; text-shadow: 0 4px 18px rgba(0,0,0,.35); }
+  header .subtitle { color: #e0e7ff; margin-top: 8px; font-size: clamp(14px, 2vw, 17px); }
+
+  main {
+    position: relative; z-index: 1; flex: 1; width: 100%; max-width: 1150px;
+    margin: 0 auto; padding: 20px 16px 30px;
+    display: flex; gap: 22px; align-items: stretch;
+  }
+
+  /* ---- Sol panel ---- */
+  .panel { flex: .95; min-width: 300px; display: flex; flex-direction: column; gap: 16px; }
+  .card { background: #fff; border-radius: 18px; padding: 18px; box-shadow: 0 14px 34px rgba(0,0,0,.18); }
+  .input-card label { font-weight: 700; font-size: 14px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .input-card label .cnt { color: var(--muted); font-size: 12px; font-weight: 600; }
+  #namesInput {
+    width: 100%; min-height: 148px; margin-top: 10px; padding: 12px;
+    border: 2px solid var(--line); border-radius: 12px;
+    font-size: 15px; font-family: inherit; resize: vertical; outline: none;
+    transition: border-color .2s;
+  }
+  #namesInput:focus { border-color: var(--indigo); }
+  #buildBtn {
+    width: 100%; margin-top: 10px; padding: 12px; border: none; border-radius: 12px;
+    background: linear-gradient(135deg, var(--indigo), var(--violet)); color: #fff;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 8px 18px rgba(79,70,229,.35);
+    transition: transform .15s, box-shadow .15s;
+  }
+  #buildBtn:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(79,70,229,.45); }
+  #buildBtn:active { transform: translateY(0); }
+  .hint { color: var(--muted); font-size: 12.5px; margin-top: 8px; line-height: 1.5; }
+
+  .stat-row { display: flex; gap: 12px; }
+  .stat { flex: 1; background: #f8fafc; border: 1px solid var(--line); border-radius: 14px; padding: 12px; text-align: center; }
+  .stat b { display: block; font-size: 26px; color: var(--indigo); }
+  .stat span { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+
+  .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  #spinBtn {
+    grid-column: 1 / -1; padding: 16px; font-size: 19px; font-weight: 800; border: none; border-radius: 14px;
+    background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; cursor: pointer;
+    box-shadow: 0 10px 22px rgba(239,68,68,.4);
+    transition: transform .15s, filter .15s;
+  }
+  #spinBtn:hover:not(:disabled) { transform: translateY(-2px) scale(1.01); }
+  #spinBtn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn2 {
+    padding: 11px; border: 2px solid var(--line); background: #fff; color: var(--ink);
+    border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+  .btn2:hover:not(:disabled) { background: #f1f5f9; border-color: #cbd5e1; }
+  .btn2:disabled { opacity: .45; cursor: not-allowed; }
+
+  .history-card h3 { font-size: 14px; margin-bottom: 8px; }
+  #pickedList { list-style: none; max-height: 168px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; }
+  #pickedList li { display: flex; align-items: center; gap: 8px; background: #f8fafc; border: 1px solid var(--line); border-radius: 10px; padding: 7px 10px; font-size: 14px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  #emptyHistory { color: var(--muted); font-size: 13px; padding: 12px 0; text-align: center; }
+
+  /* ---- Çark ---- */
+  .wheel-card {
+    flex: 1.15; min-width: 0; position: relative;
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25);
+    border-radius: 24px; padding: 22px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,.25); backdrop-filter: blur(4px);
+  }
+  .wheel-wrap { position: relative; width: 100%; max-width: 560px; }
+  canvas#wheel { display: block; width: 100%; aspect-ratio: 1 / 1; }
+  .pointer {
+    position: absolute; top: -8px; left: 50%; transform: translateX(-50%); z-index: 5;
+    width: 0; height: 0;
+    border-left: 19px solid transparent; border-right: 19px solid transparent;
+    border-top: 36px solid #f59e0b;
+    filter: drop-shadow(0 3px 5px rgba(0,0,0,.45));
+  }
+  .pointer::after {
+    content: ''; position: absolute; left: -9px; top: -36px;
+    border-left: 9px solid transparent; border-right: 9px solid transparent;
+    border-top: 16px solid #fde68a; opacity: .9;
+  }
+  .wheel-empty {
+    position: absolute; inset: 0; z-index: 3; border-radius: 18px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    text-align: center; color: #fff; background: rgba(30,41,59,.35); padding: 20px;
+  }
+  .wheel-empty .big { font-size: 46px; }
+  .wheel-empty p { max-width: 320px; line-height: 1.5; font-size: 15px; }
+
+  /* ---- Kazanan penceresi ---- */
+  .modal {
+    position: fixed; inset: 0; z-index: 100; display: none;
+    align-items: center; justify-content: center;
+    background: rgba(15,23,42,.6); backdrop-filter: blur(6px);
+  }
+  .modal.show { display: flex; }
+  .modal-box {
+    background: #fff; border-radius: 26px; padding: 36px 54px; text-align: center;
+    box-shadow: 0 30px 70px rgba(0,0,0,.45);
+    transform: scale(.6); opacity: 0;
+    transition: transform .4s cubic-bezier(.34,1.56,.64,1), opacity .3s;
+  }
+  .modal.show .modal-box { transform: scale(1); opacity: 1; }
+  .modal-emoji { font-size: 54px; animation: bounce 1.2s ease-in-out infinite; display: inline-block; }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  .modal-label { font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-top: 12px; }
+  .modal-name {
+    font-size: clamp(30px, 5vw, 46px); font-weight: 800;
+    background: linear-gradient(135deg, var(--indigo), #d946ef);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin: 10px 0 22px;
+  }
+  #modalOk {
+    padding: 13px 36px; border: none; border-radius: 14px;
+    background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff;
+    font-size: 16px; font-weight: 800; cursor: pointer;
+    box-shadow: 0 10px 22px rgba(239,68,68,.4); transition: transform .15s;
+  }
+  #modalOk:hover { transform: translateY(-2px); }
+
+  #confetti { position: fixed; inset: 0; z-index: 150; pointer-events: none; }
+
+  /* ---- Alt bilgi ---- */
+  footer { position: relative; z-index: 1; text-align: center; color: #fff; padding: 18px 16px 26px; }
+  footer .course { font-size: 11.5px; letter-spacing: 2.5px; text-transform: uppercase; color: #c7d2fe; margin-bottom: 7px; }
+  footer .brand { font-size: clamp(16px, 2.2vw, 20px); font-weight: 800; letter-spacing: 1px; text-shadow: 0 3px 12px rgba(0,0,0,.35); }
+
+  @media (max-width: 900px) {
+    main { flex-direction: column; }
+    .panel { min-width: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-decor"></div>
+
+<header>
+  <h1>🎡 Sınıf Çarkıfeleği</h1>
+  <p class="subtitle">Tanışma etkinliği ve oturma planı için isim çekme çarkı</p>
+</header>
+
+<main>
+  <!-- Sol panel -->
+  <section class="panel">
+    <div class="card input-card">
+      <label for="namesInput">📝 Öğrenci Listesi <span class="cnt" id="nameCount"></span></label>
+      <textarea id="namesInput" placeholder="Öğrenci isimlerini girin…&#10;Her satıra bir isim veya virgülle ayırın:&#10;&#10;Zeynep&#10;Ali&#10;Elif"></textarea>
+      <button id="buildBtn">🔄 Çarkı Oluştur</button>
+      <p class="hint">İsimleri satır başı, virgül veya noktalı virgülle ayırabilirsiniz. Yeni liste girip <b>Çarkı Oluştur</b>'a bastığınızda çark yeniden kurulur.</p>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><b id="remaining">0</b><span>Kalan</span></div>
+      <div class="stat"><b id="pickedCount">0</b><span>Seçilen</span></div>
+    </div>
+
+    <div class="controls">
+      <button id="spinBtn" disabled>🎯 Çevir</button>
+      <button id="undoBtn" class="btn2" disabled>↩️ Geri Al</button>
+      <button id="resetBtn" class="btn2" disabled>🔁 Sıfırla</button>
+    </div>
+
+    <div class="card history-card">
+      <h3>📋 Seçilenler</h3>
+      <ul id="pickedList"></ul>
+      <p id="emptyHistory">Henüz kimse seçilmedi</p>
+    </div>
+  </section>
+
+  <!-- Çark -->
+  <section class="wheel-card">
+    <div class="wheel-wrap">
+      <div class="pointer"></div>
+      <canvas id="wheel"></canvas>
+      <div class="wheel-empty" id="wheelEmpty" style="display:none;">
+        <div class="big">🎯</div>
+        <p id="wheelEmptyText">Çark için öğrenci isimlerini girin ve "Çarkı Oluştur" deyin.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="course">Bilişim Teknolojileri ve Yazılım Dersi</div>
+  <div class="brand">🎓 Bilfen Bilişim Zümresi</div>
+</footer>
+
+<!-- Kazanan penceresi -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="modal-emoji">🎉</div>
+    <div class="modal-label">Seçilen Öğrenci</div>
+    <div class="modal-name" id="modalName"></div>
+    <button id="modalOk">Devam Et →</button>
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+(function () {
+  'use strict';
+  const $ = id => document.getElementById(id);
+
+  const PALETTE = ['#e63946', '#f4a261', '#e9c46a', '#2a9d8f', '#457b9d', '#8e44ad',
+                   '#d81b60', '#00a8cc', '#6a994e', '#ff7f50', '#5c6bc6', '#f06292'];
+
+  let allNames = [];   // asıl liste (sıfırlamada geri dönülür)
+  let names = [];      // kalan öğrenciler
+  let picked = [];     // seçilen öğrenciler
+  let rotation = 0;    // çark açısı (radyan)
+  let animId = null;   // animasyon frame id
+  let lastTickIndex = -1;
+  let lastTickTime = 0;
+
+  const canvas = $('wheel');
+  const ctx = canvas.getContext('2d');
+  const norm = a => ((a % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+  const easeOutQuart = p => 1 - Math.pow(1 - p, 4);
+
+  /* ---------- Ses (Web Audio, dosya gerekmez) ---------- */
+  let audioCtx = null;
+  function ensureAudio() {
+    if (!audioCtx) {
+      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+      catch (e) { audioCtx = null; }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  }
+  function beep(freq, dur, type, vol, when) {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime + (when || 0);
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type || 'square';
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(vol || 0.08, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t); o.stop(t + dur);
+  }
+  function tickSound() { beep(750, 0.05, 'square', 0.07); }
+  function winSound() {
+    beep(880, 0.12, 'sine', 0.12, 0);
+    beep(1318, 0.2, 'sine', 0.12, 0.09);
+    beep(1760, 0.28, 'sine', 0.1, 0.18);
+  }
+
+  /* ---------- Konfeti ---------- */
+  function launchConfetti() {
+    const c = $('confetti');
+    const cc = c.getContext('2d');
+    const resize = () => { c.width = window.innerWidth; c.height = window.innerHeight; };
+    resize();
+    const colors = ['#f43f5e', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#eab308'];
+    const parts = Array.from({ length: 180 }, () => ({
+      x: Math.random() * c.width,
+      y: -20 - Math.random() * c.height * 0.6,
+      w: 6 + Math.random() * 8,
+      h: 8 + Math.random() * 12,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vx: (Math.random() - 0.5) * 2.5,
+      vy: 2.5 + Math.random() * 4,
+      rot: Math.random() * Math.PI,
+      vr: (Math.random() - 0.5) * 0.25,
+      sway: Math.random() * Math.PI * 2,
+      swaySpeed: 0.02 + Math.random() * 0.04
+    }));
+    const start = performance.now();
+    const duration = 3500;
+    (function loop(t) {
+      cc.clearRect(0, 0, c.width, c.height);
+      for (const p of parts) {
+        p.sway += p.swaySpeed;
+        p.x += p.vx + Math.sin(p.sway) * 1.5;
+        p.y += p.vy;
+        p.rot += p.vr;
+        cc.save(); cc.translate(p.x, p.y); cc.rotate(p.rot);
+        cc.fillStyle = p.color; cc.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        cc.restore();
+      }
+      if (t - start < duration) requestAnimationFrame(loop);
+      else cc.clearRect(0, 0, c.width, c.height);
+    })(start);
+  }
+
+  /* ---------- Liste ---------- */
+  function parseNames(text) {
+    const seen = new Set();
+    const out = [];
+    for (const raw of text.split(/[\n,;]+/)) {
+      const s = raw.trim();
+      if (!s) continue;
+      const key = s.toLocaleLowerCase('tr');
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(s);
+    }
+    return out;
+  }
+
+  /* ---------- Çizim ---------- */
+  function draw() {
+    const size = canvas.clientWidth || 520;
+    const dpr = window.devicePixelRatio || 1;
+    if (canvas.width !== Math.round(size * dpr)) { canvas.width = Math.round(size * dpr); canvas.height = Math.round(size * dpr); }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, size, size);
+
+    const cx = size / 2, cy = size / 2;
+    const R = size / 2 - 10;
+    const n = names.length;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(rotation);
+
+    if (n > 0) {
+      const slice = 2 * Math.PI / n;
+      const fontSize = Math.max(11, Math.min(20, slice * R * 0.16));
+      const textR = R * 0.86;
+      const maxChars = Math.max(3, Math.floor((textR - R * 0.42) / (fontSize * 0.6)));
+
+      for (let i = 0; i < n; i++) {
+        const start = i * slice;
+        const end = start + slice;
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, R, start, end);
+        ctx.closePath();
+        ctx.fillStyle = PALETTE[i % PALETTE.length];
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        const mid = start + slice / 2;
+        const screenMid = norm(mid + rotation);
+        const flip = screenMid > Math.PI / 2 && screenMid < Math.PI * 1.5;
+        ctx.save();
+        ctx.rotate(flip ? mid + Math.PI : mid);
+        ctx.textAlign = flip ? 'left' : 'right';
+        ctx.textBaseline = 'middle';
+        ctx.font = '700 ' + fontSize + "px 'Segoe UI', system-ui, sans-serif";
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+        const label = names[i].length > maxChars ? names[i].slice(0, maxChars - 1) + '…' : names[i];
+        const tx = flip ? -textR : textR;
+        ctx.strokeText(label, tx, 0);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(label, tx, 0);
+        ctx.restore();
+      }
+    }
+
+    ctx.restore();
+
+    // Dış halka
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+    ctx.lineWidth = 6;
+    ctx.stroke();
+
+    // Merkez göbek
+    const grad = ctx.createRadialGradient(cx, cy, R * 0.1, cx, cy, R * 0.42);
+    grad.addColorStop(0, '#ffffff');
+    grad.addColorStop(1, '#e2e8f0');
+    ctx.beginPath();
+    ctx.arc(cx, cy, R * 0.42, 0, 2 * Math.PI);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.font = (R * 0.18) + "px 'Segoe UI', system-ui, sans-serif";
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🎯', cx, cy + 2);
+  }
+
+  /* ---------- Arayüz ---------- */
+  function updateUI() {
+    $('remaining').textContent = names.length;
+    $('pickedCount').textContent = picked.length;
+    $('spinBtn').disabled = names.length === 0;
+    $('undoBtn').disabled = picked.length === 0;
+    $('resetBtn').disabled = allNames.length === 0;
+    $('nameCount').textContent = allNames.length ? allNames.length + ' öğrenci' : '';
+
+    const list = $('pickedList');
+    list.innerHTML = '';
+    picked.forEach((name, i) => {
+      const li = document.createElement('li');
+      const dot = document.createElement('span');
+      dot.className = 'dot';
+      dot.style.background = PALETTE[i % PALETTE.length];
+      const span = document.createElement('span');
+      span.textContent = (i + 1) + '. ' + name;
+      li.append(dot, span);
+      list.appendChild(li);
+    });
+    $('emptyHistory').style.display = picked.length ? 'none' : 'block';
+
+    const empty = $('wheelEmpty');
+    empty.style.display = names.length ? 'none' : 'flex';
+    $('wheelEmptyText').textContent = allNames.length
+      ? '🎉 Tüm öğrenciler seçildi!'
+      : 'Çark için öğrenci isimlerini girin ve "Çarkı Oluştur" deyin.';
+  }
+
+  function setSpinning(on) {
+    $('spinBtn').disabled = on || names.length === 0;
+    $('spinBtn').textContent = on ? '⏳ Dönüyor…' : '🎯 Çevir';
+  }
+
+  function buildWheel() {
+    if (animId) return;
+    allNames = parseNames($('namesInput').value);
+    names = allNames.slice();
+    picked = [];
+    rotation = 0;
+    lastTickIndex = -1;
+    updateUI();
+    draw();
+  }
+
+  function undo() {
+    if (!picked.length || animId) return;
+    names.unshift(picked.pop());
+    updateUI();
+    draw();
+  }
+
+  function reset() {
+    if (animId) return;
+    names = allNames.slice();
+    picked = [];
+    rotation = 0;
+    lastTickIndex = -1;
+    updateUI();
+    draw();
+  }
+
+  /* ---------- Çevirme ---------- */
+  function idxOf(rot) {
+    if (!names.length) return -1;
+    return Math.floor(norm(-Math.PI / 2 - rot) / (2 * Math.PI / names.length)) % names.length;
+  }
+
+  function spin() {
+    if (animId || names.length === 0) return;
+    ensureAudio();
+
+    const n = names.length;
+    const slice = 2 * Math.PI / n;
+    const idx = Math.floor(Math.random() * n);
+    const jitter = (Math.random() - 0.5) * slice * 0.7;
+    const center = idx * slice + slice / 2;
+    // İşaretçi 12 yönünde: -PI/2 - rotation ≡ center + jitter (mod 2PI)
+    const target = norm(-Math.PI / 2 - center - jitter);
+    const turns = 5 + Math.random() * 3;
+    const delta = 2 * Math.PI * turns + norm(target - rotation);
+
+    const start = rotation;
+    const startTime = performance.now();
+    const duration = 4200;
+    lastTickIndex = idxOf(rotation);
+    lastTickTime = 0;
+    setSpinning(true);
+
+    function frame(t) {
+      const p = Math.min(1, (t - startTime) / duration);
+      rotation = start + delta * easeOutQuart(p);
+
+      const ii = idxOf(rotation);
+      if (ii !== lastTickIndex) {
+        lastTickIndex = ii;
+        if (t - lastTickTime > 35) { lastTickTime = t; tickSound(); }
+      }
+      draw();
+
+      if (p < 1) {
+        animId = requestAnimationFrame(frame);
+      } else {
+        animId = null;
+        rotation = start + delta;
+        draw();
+        finishSpin(idx);
+      }
+    }
+    animId = requestAnimationFrame(frame);
+  }
+
+  function finishSpin(idx) {
+    const winner = names[idx];
+    names.splice(idx, 1);
+    picked.push(winner);
+    updateUI();
+    draw();
+    setSpinning(false);
+    winSound();
+    launchConfetti();
+    $('modalName').textContent = winner;
+    $('modal').classList.add('show');
+  }
+
+  function closeModal() {
+    $('modal').classList.remove('show');
+  }
+
+  /* ---------- Olaylar ---------- */
+  $('buildBtn').addEventListener('click', buildWheel);
+  $('spinBtn').addEventListener('click', spin);
+  $('undoBtn').addEventListener('click', undo);
+  $('resetBtn').addEventListener('click', reset);
+  $('modalOk').addEventListener('click', closeModal);
+  $('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+
+  if (window.ResizeObserver) new ResizeObserver(() => draw()).observe(canvas);
+  window.addEventListener('resize', draw);
+
+  /* ---------- Başlangıç: örnek isimlerle çarkı kur ---------- */
+  const samples = ['Zeynep', 'Ali', 'Elif', 'Mehmet', 'Ayşe', 'Can', 'Defne', 'Emre', 'Fatma', 'Kerem', 'Melis', 'Onur', 'Selin', 'Yusuf'];
+  $('namesInput').value = samples.join('\n');
+  buildWheel();
+})();
+</script>
+</body>
+</html>
