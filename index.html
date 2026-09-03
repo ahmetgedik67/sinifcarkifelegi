@@ -102,8 +102,15 @@
     flex: 1.15; min-width: 0; position: relative;
     background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25);
     border-radius: 24px; padding: 22px;
-    display: flex; align-items: center; justify-content: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
     box-shadow: 0 20px 50px rgba(0,0,0,.25); backdrop-filter: blur(4px);
+  }
+  .last-pick {
+    margin-top: 14px; padding: 9px 22px; border-radius: 999px;
+    background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.28);
+    color: #fff; font-size: 15px; font-weight: 700; text-align: center;
+    min-height: 40px; display: flex; align-items: center; justify-content: center;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
   }
   .wheel-wrap { position: relative; width: 100%; max-width: 560px; }
   canvas#wheel { display: block; width: 100%; aspect-ratio: 1 / 1; }
@@ -218,6 +225,7 @@
         <p id="wheelEmptyText">Çark için öğrenci isimlerini girin ve "Çarkı Oluştur" deyin.</p>
       </div>
     </div>
+    <div class="last-pick" id="lastPick">🎲 Henüz seçilmedi</div>
   </section>
 </main>
 
@@ -383,15 +391,29 @@
         ctx.rotate(flip ? mid + Math.PI : mid);
         ctx.textAlign = flip ? 'left' : 'right';
         ctx.textBaseline = 'middle';
-        ctx.font = '700 ' + fontSize + "px 'Segoe UI', system-ui, sans-serif";
         ctx.lineJoin = 'round';
         ctx.lineWidth = 3;
         ctx.strokeStyle = 'rgba(0,0,0,0.4)';
-        const label = names[i].length > maxChars ? names[i].slice(0, maxChars - 1) + '…' : names[i];
         const tx = flip ? -textR : textR;
-        ctx.strokeText(label, tx, 0);
-        ctx.fillStyle = '#fff';
-        ctx.fillText(label, tx, 0);
+        const drawLabel = (text, x, y, f) => {
+          ctx.font = '700 ' + f + "px 'Segoe UI', system-ui, sans-serif";
+          ctx.strokeText(text, x, y);
+          ctx.fillStyle = '#fff';
+          ctx.fillText(text, x, y);
+        };
+        const nm = names[i];
+        if (nm.length <= maxChars) {
+          drawLabel(nm, tx, 0, fontSize);
+        } else if (nm.length <= maxChars * 2) {
+          // Uzun isimleri kesmeden iki satıra böl
+          const half = Math.ceil(nm.length / 2);
+          const f2 = Math.max(9, fontSize * 0.8);
+          const gap = f2 * 1.1;
+          drawLabel(nm.slice(0, half), tx, -gap / 2, f2);
+          drawLabel(nm.slice(half), tx, gap / 2, f2);
+        } else {
+          drawLabel(nm.slice(0, maxChars - 1) + '…', tx, 0, fontSize);
+        }
         ctx.restore();
       }
     }
@@ -464,6 +486,7 @@
     picked = [];
     rotation = 0;
     lastTickIndex = -1;
+    $('lastPick').textContent = '🎲 Henüz seçilmedi';
     updateUI();
     draw();
   }
@@ -471,6 +494,7 @@
   function undo() {
     if (!picked.length || animId) return;
     names.unshift(picked.pop());
+    $('lastPick').textContent = picked.length ? '🏆 ' + picked[picked.length - 1] : '🎲 Henüz seçilmedi';
     updateUI();
     draw();
   }
@@ -481,6 +505,7 @@
     picked = [];
     rotation = 0;
     lastTickIndex = -1;
+    $('lastPick').textContent = '🎲 Henüz seçilmedi';
     updateUI();
     draw();
   }
@@ -502,7 +527,7 @@
     const center = idx * slice + slice / 2;
     // İşaretçi 12 yönünde: -PI/2 - rotation ≡ center + jitter (mod 2PI)
     const target = norm(-Math.PI / 2 - center - jitter);
-    const turns = 5 + Math.random() * 3;
+    const turns = 5 + Math.floor(Math.random() * 3); // TAM turlar — kesirli olursa çark hedeften sapar
     const delta = 2 * Math.PI * turns + norm(target - rotation);
 
     const start = rotation;
@@ -540,16 +565,19 @@
     names.splice(idx, 1);
     picked.push(winner);
     updateUI();
-    draw();
     setSpinning(false);
     winSound();
     launchConfetti();
+    $('lastPick').textContent = '🏆 ' + winner;
     $('modalName').textContent = winner;
     $('modal').classList.add('show');
+    // Not: çark burada yeniden çizilmiyor — pencere açıkken kazanan dilim
+    // ibrenin altında kalır; yeniden çizim closeModal'da yapılır.
   }
 
   function closeModal() {
     $('modal').classList.remove('show');
+    draw(); // kazanan çarktan düştükten sonra çarkı yeniden çiz
   }
 
   /* ---------- Olaylar ---------- */
