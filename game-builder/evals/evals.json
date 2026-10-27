@@ -1,0 +1,23 @@
+{
+  "skill_name": "game-builder",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Create a Blooket-style game with Tower Defense and Racing modes, pin code, and avatar selection for players to join",
+      "expected_output": "HTML file with game mode selection screen, pin code display, player login with nickname and avatar choice",
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "Build a quiz game admin panel with pin code generation and mode selection similar to Kahoot, including Classic and Blook Rush modes",
+      "expected_output": "Admin panel with pin code, mode chips, and game interface setup",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Make a game where players enter with nicknames and select avatars before joining a quiz game with Fishing Frenzy and Cyber Hack modes",
+      "expected_output": "Login screen with nickname input, avatar grid, and pin code to join game",
+      "files": []
+    }
+  ]
+}

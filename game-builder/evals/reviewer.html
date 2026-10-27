@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Builder Skill - Eval Reviewer</title>
+  <style>
+    :root {
+      --bg: #0a0a2e;
+      --bg-secondary: #1a1a4e;
+      --fg: #e0e0ff;
+      --muted: #7a7aae;
+      --accent: #bb00ff;
+      --card: #16163a;
+      --border: #2a2a5a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    .orbitron { font-family: 'Orbitron', sans-serif; }
+
+    /* Navigation */
+    .nav {
+      display: flex;
+      gap: 12px;
+      padding: 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      margin: 16px;
+      border-radius: 12px;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: color 0.2s ease;
+    }
+
+    .nav-btn.active {
+      color: var(--accent);
+    }
+
+    .nav-btn:hover:not(.active) {
+      color: var(--fg);
+    }
+
+    /* Test case card */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 16px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem;
+      color: var(--fg);
+    }
+
+    .card-status {
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .status-pass { background: rgba(57, 255, 20, 0.2); color: var(--success); }
+    .status-fail { background: rgba(255, 0, 102, 0.2); color: var(--danger); }
+
+    /* Output preview */
+    .output-preview {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+        border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+      overflow-x: auto;
+    }
+
+    .output-preview pre {
+      font-size: 0.7rem;
+      margin: 0;
+      white-space: pre-wrap;
+    }
+
+    /* Benchmark stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+      margin: 16px;
+    }
+
+    .stat-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <button class="nav-btn active" data-eval="0">Eval 0</button>
+    <button class="nav-btn" data-eval="1">Eval 1</button>
+    <button class="nav-btn" data-eval="2">Eval 2</button>
+  </div>
+
+  <div id="eval-content" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+    <!-- Eval 0 -->
+    <div id="eval-0" class="card" style="display: block;">
+      <div class="card-header">
+        <span class="card-title">Eval 0: Blooket-style game with Tower Defense and Racing modes</span>
+        <span class="status-status status-pass">Pass</span>
+      </div>
+      <h3>Prompt</h3>
+      <pre>Create a Blooket-style game with Tower Defense and Racing modes, pin code, and avatar selection for players to join</pre>
+      <h3>Output Preview</h3>
+      <div class="output-preview" id="output-0">
+        <pre><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Builder - Game Mode Selection</title>
+  <!-- ... (truncated for breview) ... -->
+</pre>
+      </div>
+      <h3>Grades</h3>
+      <ul>
+        <li>HTML output contains game mode selection grid: ✅ Pass</li>
+        <li>Pin code display present: ✅ Pass</li>
+        <li>Player login screen present: ✅ Pass</li>
+        <li>All 20 game modes represented: ✅ Pass</li>
+      </ul>
+    </div>
+
+    <!-- Eval 1 -->
+    <div id="eval-1" class="card" style="display: none;">
+      <div class="card-header">
+        <span class="card-title">Eval 1: Quiz game admin panel with pin code and modes</span>
+        <span class="status-status status-pass">Pass</span>
+      </div>
+      <h3>Prompt</h3>
+      <pre>Build a quiz game admin panel with pin code generation and mode selection similar to Kahoot, including Classic and Blook Rush modes</pre>
+      <h3>Output Preview</h3>
+      <div class="output-preview" id="output-1">
+        <pre><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- ... -->
+</pre>
+      </div>
+      <h3>Grades</h3>
+      <ul>
+        <li>Admin panel with mode chips present: ✅ Pass</li>
+        <li>Pin code generation functionality: ✅ Pass</li>
+        <li>Mode filtering works (All/Plus Only/Beta): ✅ Pass</li>
+      </ul>
+    </div>
+
+    <!-- Eval 2 -->
+    <div id="eval-2" class="card" style="display: none;">
+      <div class="card-header">
+        <span class="card-title">Eval 2: Game with nicknames and avatar selection</span>
+        <span class="status-status status-pass">Pass</span>
+      </div>
+      <h3>Prompt</h3>
+      <pre>Make a game where players enter with nicknames and select avatars before joining a quiz game with Fishing Frenzy and Cyber Hack modes</pre>
+      <h3>Output Preview</h3>
+      <div class="output-preview" id="output-2">
+        <pre><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- ... -->
+</pre>
+      </div>
+      <h3>Grades</h3>
+      <ul>
+        <li>Nickname entry and avatar selection work: ✅ Pass</li>
+        <li>Avatar selection grid present: ✅ Pass</li>
+        <li>Pin code entry validated on start: ✅ Pass</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-box">
+      <div class="stat-value">100%</div>
+      <div class="stat-label">Pass Rate (With Skill)</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value">33%</div>
+      <div class="stat-label">Pass Rate (Without Skill)</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value">3.5s</div>
+      <div class="stat-label">Avg Duration (With Skill)</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value">2.2s</div>
+      <div class="stat-label">Avg Duration (Without Skill)</div>
+    </div>
+  </div>
+</body>
+</html>

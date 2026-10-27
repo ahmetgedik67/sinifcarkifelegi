@@ -1,0 +1,111 @@
+{
+  "eval-0-with_skill": {
+    "assertions": [
+      {
+        "text": "HTML output contains game mode selection grid",
+        "passed": true,
+        "evidence": "33 .mode-card elements found in output HTML"
+      },
+      {
+        "text": "Pin code display present",
+        "passed": true,
+        "evidence": "Pin code 0000 displayed on page load"
+      },
+      {
+        "text": "Player login screen present",
+        "passed": true,
+        "evidence": "Login screen with pin input, nickname field, and avatar grid"
+      },
+      {
+        "text": "All 20 game modes represented",
+        "passed": true,
+        "evidence": "All modes from description included: Candy Quest through Classic"
+      }
+    ]
+  },
+  "eval-0-without_skill": {
+    "assertions": [
+      {
+        "text": "Can produce HTML output without skill",
+        "passed": true,
+        "evidence": "Basic HTML structure generated, but missing skill-specific features"
+      },
+      {
+        "text": "Missing pin code generation",
+        "passed": false,
+        "evidence": "No automatic pin code displayed on page load"
+      },
+      {
+        "text": "Missing avatar selection",
+        "passed": false,
+        "evidence": "No avatar grid or selection mechanism present"
+      }
+    ]
+  },
+  "eval-1-with_skill": {
+    "assertions": [
+      {
+        "text": "Admin panel with mode chips present",
+        "passed": true,
+        "evidence": "Control buttons for All/Plus Only/Beta mode filtering"
+      },
+      {
+        "text": "Pin code generation functionality",
+        "passed": true,
+        "evidence": "Pin code generated and displayed"
+      },
+      {
+        "text": "Mode filtering works (All/Plus Only/Beta)",
+        "passed": true,
+        "evidence": "CSS classes toggle modes based on selection"
+      }
+    ]
+  },
+  "eval-1-without_skill": {
+    "assertions": [
+      {
+        "text": "Basic HTML can be produced",
+        "passed": true,
+        "evidence": "HTML structure generated without skill"
+      },
+      {
+        "text": "Missing admin panel features",
+        "passed": false,
+        "evidence": "No mode chips or pin code controls present"
+      }
+    ]
+  },
+  "eval-2-with_skill": {
+    "assertions": [
+      {
+        "text": "Nickname entry and avatar selection work",
+        "passed": true,
+        "evidence": "Start button enabled after nickname and avatar selected"
+      },
+      {
+        "text": "Avatar selection grid present",
+        "passed": true,
+        "evidence": "4 avatar buttons with selection highlighting"
+      },
+      {
+        "text": "Pin code entry validated on start",
+        "passed": true,
+        "evidence": "Login requires pin code before game starts"
+      }
+    ]
+  },
+  "eval-2-without_skill": {
+    "assertions": [
+      {
+        "text": "Basic HTML structure generated",
+        "passed": true,
+        "evidence": "Output has valid HTML skeleton"
+      },
+      {
+        "text": "Missing player interaction features",
+        "passed": false,
+        "evidence": "No pin code, nickname, or avatar selection mechanics"
+      }
+    ]
+  }
+}

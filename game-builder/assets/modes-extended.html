@@ -1,0 +1,161 @@
+<!-- Extended game modes for the game-builder skill -->
+<!-- These can be added to the main index.html or used as expansions -->
+
+/* Extended mode definitions - add these to the mode-grid in index.html */
+
+.extended-modes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  max-width: 1000px;
+  margin: 20px auto 0;
+}
+
+.extended-mode-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 10px;
+  text-align: center;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.extended-mode-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(187, 0, 255, 0.2);
+}
+
+.extended-mode-card.selected {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, var(--card), var(--bg-secondary));
+  box-shadow: 0 0 20px rgba(187, 0, 255, 0.3);
+}
+
+.extended-mode-card .logo {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 8px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.extended-mode-card .mode-name {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.extended-mode-card .mode-desc {
+  font-size: 0.55rem;
+  color: var(--muted);
+  font-weight: 300;
+}
+
+.extended-mode-card.plus-only::after {
+  content: '+ PLUS ONLY';
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: var(--danger);
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.extended-mode-card.beta::after {
+  content: '⚙️ BETA';
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: #3a5a7c;
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+/* New game modes that can be added */
+
+/* Kingdoms - medieval fantasy tower defense */
+.extended-mode-card[data-mode="kingdoms"] {
+  border-color: #6c5ce7;
+}
+
+.extended-mode-card[data-mode="kingdoms"] .logo {
+  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+}
+
+/* Gold Quest - treasure hunting mode */
+.extended-mode-card[data-mode="gold-quest"] {
+  border-color: #f5c542;
+}
+
+.extended-mode-card[data-mode="gold-quest"] .logo {
+  background: linear-gradient(135deg, #f5c542, #fab005);
+}
+
+/* Infection - survival mode */
+.extended-mode-card[data-mode="infection"] {
+  border-color: #ff0066;
+}
+
+.extended-mode-card[data-mode="infection"] .logo {
+  background: linear-gradient(135deg, #ff0066, #e8275b);
+}
+
+/* Tower of Doom - enhanced tower defense */
+.extended-mode-card[data-mode="tower-doom"] {
+  border-color: #7dd3fc;
+}
+
+.extended-mode-card[data-mode="tower-doom"] .logo {
+  background: linear-gradient(135deg, #7dd3fc, #0abfbc);
+}
+
+/* Arcade - classic arcade style */
+.extended-mode-card[data-mode="arcade"] {
+  border-color: #ff6b35;
+}
+
+.extended-mode-card[data-mode="arcade"] .logo {
+  background: linear-gradient(135deg, #ff6b35, #f7c881);
+}
+
+/* Dino Run - dinosaur racing */
+.extended-mode-card[data-mode="dino-run"] {
+  border-color: #22c55e;
+}
+
+.extended-mode-card[data-mode="dino-run"] .logo {
+  background: linear-gradient(135deg, #22c55e, #10b981);
+}
+
+/• Café - already have Cafe, but could have variant */
+/* Café Rush - faster version */
+.extended-mode-card[data-mode="cafe-rush"] {
+  border-color: #f87171;
+}
+
+.extended-mode-card[data-mode="cafe-rush"] .logo {
+  background: linear-gradient(135deg, #f87171, #fca5a5);
+}
+
+/* Factory Expansion */
+.extended-mode-card[data-mode="factory-2"] {
+  border-color: #67e8f9;
+}
+
+.extended-mode-card[data-mode="factory-2"] .logo {
+  background: linear-gradient(135deg, #67e8f9, #22d3ee);
+}

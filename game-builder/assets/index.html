@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Builder - Game Mode Selection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a2e;
+      --bg-secondary: #1a1a4e;
+      --fg: #e0e0ff;
+      --muted: #7a7aae;
+      --accent: #bb00ff;
+      --accent-secondary: #2b2d42;
+      --card: #16163a;
+      --border: #2a2a5a;
+      --danger: #ff0066;
+      --success: #39ff14;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    .orbitron {
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    /* Background pattern */
+    .bg-pattern {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        radial-gradient(circle at 20% 20%, rgba(187, 0, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(43, 45, 66, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 60%, rgba(187, 0, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 70% 40%, rgba(43, 45, 66, 0.2) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .noise {
+      position: fixed;
+      inset: 0;
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 1;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(#noise)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+    }
+
+    /* Header */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .banner {
+      background: rgba(10, 10, 46, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 300px;
+    }
+
+    .banner-text {
+      color: var(--fg);
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    /* Main content */
+    .main {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      padding: 80px 20px 20px;
+    }
+
+    /* Game mode grid */
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .mode-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 12px;
+      text-align: center;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mode-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .mode-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(187, 0, 255, 0.2);
+    }
+
+    .mode-card:hover::before {
+      opacity: 1;
+    }
+
+    .mode-card.selected {
+      border-color: var(--accent);
+      background: linear-gradient(135deg, var(--card), var(--bg-secondary));
+      box-shadow: 0 0 20px rgba(187, 0, 255, 0.3);
+    }
+
+    .mode-card.dimmed {
+      opacity: 0.5;
+    }
+
+    .mode-card.plus-only::after {
+      content: '+ PLUS ONLY';
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: var(--danger);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .mode-card.beta::after {
+      content: '⚙️ BETA';
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: #3a5a7c;
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .mode-card .logo {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 12px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+
+    .mode-card .mode-name {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .mode-card .mode-desc {
+      font-size: 0.6rem;
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    /* Controls */
+    .controls {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      z-index: 50;
+      display: flex;
+      gap: 12px;
+    }
+
+    .control-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--fg);
+      padding: 8px 16px;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .control-btn:hover {
+      border-color: var(--accent);
+      background: rgba(187, 0, 255, 0.1);
+    }
+
+    .control-btn.active {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    /* Pin code display */
+    .pin-display {
+      position: fixed;
+      top: 160px;
+      right: 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      min-width: 180px;
+      text-align: center;
+    }
+
+    .pin-display .pin-code {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.3em;
+      margin-bottom: 8px;
+    }
+
+    .pin-display .status {
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    /* Player login */
+    .login-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+
+    .login-screen.active {
+      display: flex;
+    }
+
+    .login-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 32px;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .login-card h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      color: var(--fg);
+      margin-bottom: 24px;
+    }
+
+    .login-card .pin-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--fg);
+      font-size: 1rem;
+      text-align: center;
+      margin-bottom: 20px;
+      font-family: inherit;
+    }
+
+    .login-card .nickname-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--fg);
+      font-size: 1rem;
+      margin-bottom: 16px;
+      font-family: inherit;
+    }
+
+    .avatar-grid {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    .avatar-btn {
+      width: 40px;
+      height: 40px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .avatar-btn.selected {
+      border-color: var(--accent);
+      background: rgba(187, 0, 255, 0.2);
+    }
+
+    .avatar-btn .avatar-icon {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .login-card .start-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent);
+      color: var(--bg);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+
+    .login-card .start-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Admin action buttons */
+    .admin-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--fg);
+      padding: 8px 16px;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .admin-btn:hover {
+      border-color: var(--accent);
+      background: rgba(187, 0, 255, 0.1);
+    }
+
+    /* Player roster */
+    .player-roster {
+      margin-top: 16px;
+      max-height: 220px;
+      overflow-y: auto;
+      text-align: left;
+    }
+
+    .player-entry {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      font-size: 0.8rem;
+      animation: popIn 0.25s ease;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .player-entry .noavatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: var(--bg);
+      background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+      font-size: 0.8rem;
+    }
+
+    /* Question editor overlay */
+    .editor-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+    }
+
+    .editor-overlay.active { display: flex; }
+
+    .editor-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      width: 92%;
+      max-width: 560px;
+      max-height: 85vh;
+      overflow-y: auto;
+      text-align: left;
+    }
+
+    .editor-card h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.2rem;
+      color: var(--fg);
+      margin: 0 0 16px;
+      text-align: center;
+    }
+
+    .editor-card input {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    .answer-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .answer-row input[type="text"] { flex: 1; margin-bottom: 0; }
+
+    .correct-toggle {
+      width: 22px;
+      height: 22px;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      cursor: pointer;
+      flex-shrink: 0;
+      background: var(--bg-secondary);
+    }
+
+    .correct-toggle.active { border-color: var(--success); background: var(--success); }
+
+    .q-time { width: 110px !important; }
+
+    .q-list { margin-top: 16px; }
+
+    .q-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      font-size: 0.8rem;
+    }
+
+    .q-item .q-del {
+      background: none;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      text-transform: uppercase;
+    }
+
+    .editor-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .editor-actions .btn {
+      flex: 1;
+      padding: 10px;
+      background: var(--accent);
+      color: var(--bg);
+      font-family: inherit;
+      font-size: 0.85rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .editor-actions .btn.secondary {
+      background: var(--bg-secondary);
+      color: var(--fg);
+      border: 1px solid var(--border);
+    }
+
+    .load-input { display: none; }
+
+    /* Mode selection results */
+    .results {
+      margin-top: 32px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+    }
+
+    .mode-chip {
+      display: inline-block;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      margin: 4px;
+      font-size: 0.65rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .mode-chip.selected {
+      border-color: var(--accent);
+      background: rgba(187, 0, 255, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <!-- Background -->
+  <div class="bg-pattern"></div>
+  <div class="noise"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="banner">
+      <span class="banner-text">Select Live Game Mode</span>
+    </div>
+  </header>
+
+  <!-- Controls -->
+  <div class="controls" style="flex-direction: column;">
+    <button class="control-btn active" data-mode="all">All Modes</button>
+    <button class="control-btn" data-mode="plus">Plus Only</button>
+    <button class="control-btn" data-mode="beta">Beta</button>
+    <button class="admin-btn" id="editQuestionsBtn">Edit Questions <span id="qBadge"></span></button>
+    <button class="admin-btn" id="saveBtn">Save Config</button>
+    <button class="admin-btn" id="loadBtn">Load Config</button>
+  </div>
+
+  <!-- Game Mode Grid -->
+  <main class="main">
+    <div class="mode-grid" id="modeGrid">
+      <!-- Row 1 -->
+      <div class="mode-card" data-mode="candy-quiz">
+        <div class="logo" style="background: linear-gradient(135deg, #ff6b6b, #ff8c42);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2v4l10 8H2l10-8H12z"/>
+            <circle cx="12" cy="12" r="10"/>
+          </svg>
+        </div>
+        <div class="mode-name">Candy Quest</div>
+        <div class="mode-desc">CANDY Quest with pink lollipop and orange jack-o'-lantern</div>
+      </div>
+
+      <div class="mode-card plus-only" data-mode="fishing">
+        <div class="logo" style="background: linear-gradient(135deg, #1e3a5f, #2c5a7e);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14 8 14"/>
+            <line x1="12" y1="14" x2="22" y2="4"/>
+          </svg>
+        </div>
+        <div class="mode-name">Fishing Frenzy</div>
+        <div class="mode-desc">FISHING FRENZY with shark fin icon</div>
+        <span class="plus-only">+ PLUS ONLY</span>
+      </div>
+
+      <div class="mode-card" data-mode="cyber">
+        <div class="logo" style="background: linear-gradient(135deg, #00ff88, #00b2a9);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v3c0 6 8 10 8 10z"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+            <path d="m16 18 6-6 6 6-6 6-6-6z"/>
+          </svg>
+        </div>
+        <div class="mode-name">Cyber Hack</div>
+        <div class="mode-desc">> CYBER HACK with terminal chevrons and wifi icon</div>
+      </div>
+
+      <div class="mode-card plus-only dimmed" data-mode="tag-or-treat">
+        <div class="logo" style="background: linear-gradient(135deg, #7a7a7a, #5a5a5a);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+            <line x1="9" y1="9" x2="15" y2="9"/>
+            <line x1="12" y1="15" x2="12" y2="21"/>
+          </svg>
+        </div>
+        <div class="mode-name">Tag or Treat</div>
+        <div class="mode-desc">TAG OR TREAT with ghost, skull, and candies</div>
+        <span class="plus-only">+ PLUS ONLY</span>
+      </div>
+
+      <div class="mode-card plus-only beta" data-mode="claw">
+        <div class="logo" style="background: linear-gradient(135deg, #5a5a5a, #3a3a3a);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2v4l10 8H2l10-8H12z"/>
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 12h8"/>
+          </svg>
+        </div>
+        <div class="mode-name">Claw Mania</div>
+        <div class="mode-desc">Claw machine game</div>
+        <span class="plus-only">+ PLUS ONLY</span>
+        <span class="beta">⚙️ Beta</span>
+      </div>
+
+      <div class="mode-card plus-only dimmed" data-mode="bees">
+        <div class="logo" style="background: linear-gradient(135deg, #f5c542, #eab308);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14 8 14"/>
+            <line x1="12" y1="14" x2="22" y2="4"/>
+            <path d="M22 7l-8.59 2.46L2 7m6 4l11.59 2.33L22 13"/>
+          </svg>
+        </div>
+        <div class="mode-name">Busy Bees</div>
+        <div class="mode-desc">BEES with honeycomb details</div>
+        <span class="plus-only">+ PLUS ONLY</span>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="mode-card plus-only dimmed" data-mode="mini-mine">
+        <div class="logo" style="background: linear-gradient(135deg, #2d3748, #1a202c);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <line x1="3" y1="15" x2="21" y2="15"/>
+            <line x1="9" y1="9" x2="9" y2="15"/>
+            <line x1="15" y1="9" x2="15" y2="15"/>
+          </svg>
+        </div>
+        <div class="mode-name">Mini Mine</div>
+        <div class="mode-desc">MINI MINE with minecart/rock texture</div>
+        <span class="plus-only">+ PLUS ONLY</span>
+      </div>
+
+      <div class="mode-card dimmed" data-mode="star-grazer">
+        <div class="logo" style="background: linear-gradient(135deg, #805ad5, #d69e2e);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v3c0 6 8 10 8 10z"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+          </svg>
+        </div>
+        <div class="mode-name">Star Grazer</div>
+        <div class="mode-desc">STAR GRAZER with celestial imagery</div>
+        <span class="plus-only">+ PLUS ONLY</span>
+      </div>
+
+      <div class="mode-card dimmed" data-mode="laser-tag">
+        <div class="logo" style="background: linear-gradient(135deg, #e53935, #c62828);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21.5 10.5l-7-7a2 2 0 0 0-2.83 0L8 13l9 7 7-7a2 2 0 0 0 0-2.83l-1.06-1.06a2 2 0 0 0-2.83 0L3 17l7 7a2 2 0 0 0 2.83 0l1.06-1.06a2 2 0 0 0 0-2.83z"/>
+            <line x1="12" y1="10" x2="12" y2="14"/>
+            <line x1="16" y1="6" x2="8" y2="6"/>
+          </svg>
+        </div>
+        <div class="mode-name">Laser Tag</div>
+        <div class="mode-desc">LASER TAG with laser gun and helmet icons</div>
+        <span class="plus-only">+ PLUS ONLY</span>
+      </div>
+
+      <div class="mode-card" data-mode="coco">
+        <div class="logo" style="background: linear-gradient(135deg, #ff6b6b, #ff8c42);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v3c0 6 8 10 8 10z"/>
+            <circle cx="12" cy="12" r="1"/>
+          </svg>
+        </div>
+        <div class="mode-name">Coco Cabana</div>
+        <div class="mode-desc">Coco Cabana with umbrella and coconut</div>
+        <span class="plus-only">+ PLUS ONLY</span>
+      </div>
+
+      <div class="mode-card" data-mode="tower2">
+        <div class="logo" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M10 18l4-8 4 8-4 8-4-8z"/>
+            <path d="M12 2v4l10 8H2l10-8H12z"/>
+            <path d="M18 15l-2-8h4l-2 8-6 2-6-2l-2 8h4l-2-8z"/>
+          </svg>
+        </div>
+        <div class="mode-name">Tower Defense 2</div>
+        <div class="mode-desc">TOWER DEFENSE 2 with glowing explosion</div>
+      </div>
+
+      <div class="mode-card" data-mode="monster">
+        <div class="logo" style="background: linear-gradient(135deg, #ff0066, #ff6b6b);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v3c0 6 8 10 8 10z"/>
+            <circle cx="12" cy="7" r="3"/>
+            <path d="M15 10l-3 5L9 10"/>
+          </svg>
+        </div>
+        <div class="mode-name">Monster Brawl</div>
+        <div class="mode-desc">MONSTER BRAWL with purple monster horns</div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="mode-card" data-mode="deceptive">
+        <div class="logo" style="background: linear-gradient(135deg, #7d9942, #5a7a30);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2v4l10 8H2l10-8H12z"/>
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+            <line x1="9" y1="9" x2="15" y2="9"/>
+            <line x1="12" y1="15" x2="12" y2="21"/>
+          </svg>
+        </div>
+        <div class="mode-name">Deceptive Dinos</div>
+        <div class="mode-desc">DECEPTIVE DINOS with pickaxe and cracked egg</div>
+      </div>
+
+      <div class="mode-card" data-mode="battle-royale">
+        <div class="logo" style="background: linear-gradient(135deg, #f6e05e, #faa602);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v3c0 6 8 10 8 10z"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+            <path d="M16 18l6-6l-2-8h-4l2-8l-6 6l2 8h4l-2 8z"/>
+          </svg>
+        </div>
+        <div class="mode-name">Battle Royale</div>
+        <div class="mode-desc">BATTLE ROYALE with diagonal color streaks</div>
+      </div>
+
+      <div class="mode-card" data-mode="tower">
+        <div class="logo" style="background: linear-gradient(135deg, #ffd93d, #f0ad4e);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2v4l10 8H2l10-8H12z"/>
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+            <line x1="9" y1="9" x2="15" y2="9"/>
+          </svg>
+        </div>
+        <div class="mode-name">Tower Defense</div>
+        <div class="mode-desc">TOWER DEFENSE with castle tower and explosions</div>
+      </div>
+
+      <div class="mode-card" data-mode="cafe">
+        <div class="logo" style="background: linear-gradient(135deg, #e53935, #c62828);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+            <path d="M2 3l6 14 4-10H6z"/>
+          </svg>
+        </div>
+        <div class="mode-name">Cafe</div>
+        <div class="mode-desc">Cafe with fried egg in pan and fork</div>
+      </div>
+
+      <div class="mode-card" data-mode="factory">
+        <div class="logo" style="background: linear-gradient(135deg, #42a5f5, #1e88e5);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M3 9l9-11h8l9 11H3l9-11H15l9 11h-8l-9-11z"/>
+            <circle cx="3" cy="18" r="3"/>
+            <circle cx="21" cy="18" r="3"/>
+            <circle cx="3" cy="6" r="3"/>
+            <circle cx="21" cy="6" r="3"/>
+          </svg>
+        </div>
+        <div class="mode-name">Factory</div>
+        <div class="mode-desc">FACTORY with smokestacks and gear wheel</div>
+      </div>
+
+      <div class="mode-card" data-mode="racing">
+        <div class="logo" style="background: linear-gradient(135deg, #ff6b35, #f7c881);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M3 9l9-11h8l9 11H3l9-11H12l9 11h-8l-9-11z"/>
+            <line x1="7" y1="12" x2="17" y2="12"/>
+            <path d="M12 2v4l10 8H2l10-8H12z"/>
+          </svg>
+        </div>
+        <div class="mode-name">Racing</div>
+        <div class="mode-desc">RACING with fiery flames and checkered finish line</div>
+      </div>
+
+      <!-- Row 4 -->
+      <div class="mode-card" data-mode="blook-rush">
+        <div class="logo" style="background: linear-gradient(135deg, #48dbfb, #0abfbc);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2v4l10 8H2l10-8H12z"/>
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+            <line x1="9" y1="9" x2="15" y2="9"/>
+          </svg>
+        </div>
+        <div class="mode-name">Blook Rush</div>
+        <div class="mode-desc">BLOOK RUSH with blue crystal and yellow sword</div>
+      </div>
+
+      <div class="mode-card" data-mode="classic">
+        <div class="logo" style="background: linear-gradient(135deg, #318ce8, #2c5aa0);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v3c0 6 8 10 8 10z"/>
+            <circle cx="12" cy="7" r="3"/>
+            <path d="M15 10l-3 5L9 10"/>
+          </svg>
+        </div>
+        <div class="mode-name">Classic</div>
+        <div class="mode-desc">Classic with three small blocky heads (yellow, green, red)</div>
+      </div>
+
+      <!-- Extended Modes Section -->
+      <div class="mode-grid" style="margin-top: 32px; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
+        <div class="mode-card extended-mode" data-mode="kingdoms" style="cursor: pointer; border: 1px solid #6c5ce7;">
+          <div class="logo" style="background: linear-gradient(135deg, #6c5ce7, #a29bfe); width: 32px; height: 32px; margin: 0 auto 6px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 2v4l10 8H2l10-8H12z"/>
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+              <line x1="9" y1="9" x2="15" y2="9"/>
+            </svg>
+          </div>
+          <div class="mode-name">Kingdoms</div>
+          <div class="mode-desc">Medieval fantasy tower defense</div>
+        </div>
+
+        <div class="mode-card extended-mode" data-mode="gold-quest" style="cursor: pointer; border: 1px solid #f5c542;">
+          <div class="logo" style="background: linear-gradient(135deg, #f5c542, #fab005); width: 32px; height: 32px; margin: 0 auto 6px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14 8 14"/>
+              <line x1="12" y1="14" x2="22" y2="4"/>
+            </svg>
+          </div>
+          <div class="mode-name">Gold Quest</div>
+          <div class="mode-desc">Treasure hunting mode</div>
+        </div>
+
+        <div class="mode-card extended-mode" data-mode="infection" style="cursor: pointer; border: 1px solid #ff0066;">
+          <div class="logo" style="background: linear-gradient(135deg, #ff0066, #e8275b); width: 32px; height: 32px; margin: 0 auto 6px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+              <line x1="9" y1="9" x2="15" y2="9"/>
+            </svg>
+          </div>
+          <div class="mode-name">Infection</div>
+          <div class="mode-desc">Survival mode</div>
+        </div>
+
+        <div class="mode-card extended-mode" data-mode="tower-doom" style="cursor: pointer; border: 1px solid #7dd3fc;">
+          <div class="logo" style="background: linear-gradient(135deg, #7dd3fc, #0abfbc); width: 32px; height: 32px; margin: 0 auto 6px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 2v4l10 8H2l10-8H12z"/>
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+              <line x1="9" y1="9" x2="15" y2="9"/>
+            </svg>
+          </div>
+          <div class="mode-name">Tower of Doom</div>
+          <div class="mode-desc">Enhanced tower defense</div>
+        </div>
+
+        <div class="mode-card extended-mode" data-mode="arcade" style="cursor: pointer; border: 1px solid #ff6b35;">
+          <div class="logo" style="background: linear-gradient(135deg, #ff6b35, #f7c881); width: 32px; height: 32px; margin: 0 auto 6px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21.5 10.5l-7-7a2 2 0 0 0-2.83 0L8 13l9 7 7-7a2 2 0 0 0 0-2.83l-1.06-1.06a2 2 0 0 0-2.83 0L3 17l7 7a2 2 0 0 0 2.83 0l1.06-1.06a2 2 0 0 0 0-2.83z"/>
+              <line x1="12" y1="10" x2="12" y2="14"/>
+              <line x1="16" y1="6" x2="8" y2="6"/>
+            </svg>
+          </div>
+          <div class="mode-name">Arcade</div>
+          <div class="mode-desc">Classic arcade style</div>
+        </div>
+
+        <div class="mode-card extended-mode" data-mode="dino-run" style="cursor: pointer; border: 1px solid #22c55e;">
+          <div class="logo" style="background: linear-gradient(135deg, #22c55e, #10b981); width: 32px; height: 32px; margin: 0 auto 6px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14 8 14"/>
+              <line x1="12" y1="14" x2="22" y2="4"/>
+            </svg>
+          </div>
+          <div class="mode-name">Dino Run</div>
+          <div class="mode-desc">Dinosaur racing</div>
+        </div>
+
+        <div class="mode-card extended-mode" data-mode="cafe-rush" style="cursor: pointer; border: 1px solid #f87171;">
+          <div class="logo" style="background: linear-gradient(135deg, #f87171, #fca5a5); width: 32px; height: 32px; margin: 0 auto 6px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+              <path d="M2 3l6 14 4-10H6z"/>
+            </svg>
+          </div>
+          <div class="mode-name">Café Rush</div>
+          <div class="mode-desc">Faster version of Café</div>
+        </div>
+
+        <div class="mode-card extended-mode" data-mode="factory-2" style="cursor: pointer; border: 1px solid #67e8f9;">
+          <div class="logo" style="background: linear-gradient(135deg, #67e8f9, #22d3ee); width: 32px; height: 32px; margin: 0 auto 6px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M3 9l9-11h8l9 11H3l9-11H15l9 11h-8l-9-11z"/>
+              <circle cx="3" cy="18" r="3"/>
+              <circle cx="21" cy="18" r="3"/>
+              <circle cx="3" cy="6" r="3"/>
+              <circle cx="21" cy="6" r="3"/>
+            </svg>
+          </div>
+          <div class="mode-name">Factory 2</div>
+          <div class="mode-desc">Factory expansion</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Pin Code Display -->
+  <div class="pin-display" id="pinDisplay">
+    <div class="pin-code" id="pinCode">0000</div>
+    <div class="status" id="pinStatus">Waiting for players</div>
+    <div class="player-roster" id="playerRoster"></div>
+  </div>
+
+  <!-- Question Editor -->
+  <div class="editor-overlay">
+    <div class="editor-card">
+      <h2>Edit Questions</h2>
+      <input type="text" id="qTextInput" placeholder="Question text">
+      <div class="answer-row">
+        <span class="correct-toggle active" title="Correct answer"></span>
+        <input type="text" id="qAnswer0" placeholder="Answer 1">
+      </div>
+      <div class="answer-row">
+        <span class="correct-toggle" title="Correct answer"></span>
+        <input type="text" id="qAnswer1" placeholder="Answer 2">
+      </div>
+      <div class="answer-row">
+        <span class="correct-toggle" title="Correct answer"></span>
+        <input type="text" id="qAnswer2" placeholder="Answer 3">
+      </div>
+      <div class="answer-row">
+        <span class="correct-toggle" title="Correct answer"></span>
+        <input type="text" id="qAnswer3" placeholder="Answer 4">
+      </div>
+      <input type="number" id="qTime" class="q-time" min="5" max="120" value="20" title="Time limit (seconds)">
+      <div class="editor-actions">
+        <button class="btn" id="addQBtn">Add Question</button>
+      </div>
+      <div class="q-list">
+        <div style="font-size: 0.75rem; color: var(--muted); margin-bottom: 8px;" id="qCount">0 question(s)</div>
+        <div id="qList"></div>
+      </div>
+      <div class="editor-actions">
+        <button class="btn secondary" id="editorCloseBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="loadInput" class="load-input" accept=".json,application/json">
+
+  <!-- Login Screen -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-card">
+      <h2>Enter Game</h2>
+      <input type="text" class="pin-input" placeholder="Pin code" id="pinInput">
+      <input type="text" class="nickname-input" placeholder="Your nickname" id="nicknameInput">
+      <div class="avatar-grid" id="avatarGrid">
+        <button class="avatar-btn selected" data-avatar="1">
+          <img src="https://cdn-icons-png.flaticon.com/512/2936/2936382.png" class="avatar-icon" alt="Avatar 1">
+        </button>
+        <button class="avatar-btn" data-avatar="2">
+          <img src="https://cdn-icons-png.flaticon.com/512/2936/2936383.png" class="avatar-icon" alt="Avatar 2">
+        </button>
+        <button class="avatar-btn" data-avatar="3">
+          <img src="https://cdn-icons-png.flaticon.com/512/2936/2936384.png" class="avatar-icon" alt="Avatar 3">
+        </button>
+        <button class="avatar-btn" data-avatar="4">
+          <img src="https://cdn-icons-png.flaticon.com/512/2936/2936385.png" class="avatar-icon" alt="Avatar 4">
+        </button>
+      </div>
+      <button class="start-btn" id="startBtn" disabled>Start Game</button>
+    </div>
+  </div>
+
+  <!-- Game Mode Chips -->
+  <div class="results" id="results">
+    <span class="mode-chip selected" data-mode="all">All Modes</span>
+  </div>
+
+  <script>
+    // Initialize game state
+    const gameState = {
+      selectedModes: new Set(),
+      pinCode: '',
+      playerNickname: '',
+      selectedAvatar: 1,
+      isPlaying: false,
+      players: [],
+      questions: []
+    };
+
+    // Generate pin code
+    function generatePin() {
+      gameState.pinCode = Math.floor(1000 + Math.random() * 8999).toString();
+      document.getElementById('pinCode').textContent = gameState.pinCode;
+      document.getElementById('pinStatus').textContent = 'Pin code generated';
+    }
+
+    // Mode card click handler
+    document.querySelectorAll('.mode-card:not(.plus-only):not(.beta)').forEach(card => {
+      card.addEventListener('click', () => {
+        // Toggle selection
+        card.classList.toggle('selected');
+        
+        const mode = card.dataset.mode;
+        if (gameState.selectedModes.has(mode)) {
+          gameState.selectedModes.delete(mode);
+        } else {
+          gameState.selectedModes.add(mode);
+        }
+        
+        updateModeChips();
+      });
+    });
+
+    // Plus-only and beta badges - already marked in HTML, just visual
+    // Mode chips update
+    function updateModeChips() {
+      const chips = document.querySelectorAll('.mode-chip');
+      chips.forEach(chip => {
+        const mode = chip.dataset.mode;
+        if (mode === 'all') {
+          chip.classList.toggle('selected', gameState.selectedModes.size === 0);
+        } else {
+          chip.classList.toggle('selected', gameState.selectedModes.has(mode));
+        }
+      });
+    }
+
+    // Control buttons
+    document.querySelectorAll('.control-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.control-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        const mode = btn.dataset.mode;
+        document.querySelectorAll('.mode-card').forEach(card => {
+          if (mode === 'all') {
+            card.style.display = 'grid';
+          } else if (mode === 'plus') {
+            card.style.display = card.classList.contains('plus-only') ? 'grid' : 'none';
+          } else if (mode === 'beta') {
+            card.style.display = card.classList.contains('beta') ? 'grid' : 'none';
+          }
+        });
+      });
+    });
+
+    // Avatar selection
+    document.querySelectorAll('.avatar-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.avatar-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        gameState.selectedAvatar = parseInt(btn.dataset.avatar);
+        document.getElementById('startBtn').disabled = false;
+      });
+    });
+
+    // Pin code entry
+    document.getElementById('startBtn').addEventListener('click', () => {
+      gameState.playerNickname = document.getElementById('nicknameInput').value.trim() || 'Player';
+      gameState.isPlaying = true;
+      
+      // Hide login screen, show game
+      document.getElementById('loginScreen').classList.remove('active');
+      document.getElementById('modeGrid').style.display = 'grid';
+
+      // Register the joining player in the live roster
+      addPlayer(gameState.playerNickname, gameState.selectedAvatar);
+    });
+
+    // ---------- Player roster ----------
+    function addPlayer(nickname, avatarId) {
+      gameState.players.push({ nickname, avatar: avatarId });
+      const roster = document.getElementById('playerRoster');
+      const entry = document.createElement('div');
+      entry.className = 'player-entry';
+      entry.innerHTML = '<span class="noavatar">' + avatarId + '</span><span>' + escapeHtml(nickname) + '</span>';
+      roster.appendChild(entry);
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // ---------- Question editor ----------
+    document.getElementById('editQuestionsBtn').addEventListener('click', () => {
+      document.querySelector('.editor-overlay').classList.add('active');
+      renderQList();
+    });
+
+    document.getElementById('editorCloseBtn').addEventListener('click', () => {
+      document.querySelector('.editor-overlay').classList.remove('active');
+    });
+
+    document.querySelectorAll('.correct-toggle').forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        document.querySelectorAll('.correct-toggle').forEach(t => t.classList.remove('active'));
+        toggle.classList.add('active');
+      });
+    });
+
+    function addQuestion() {
+      const text = document.getElementById('qTextInput').value.trim();
+      const answers = [0, 1, 2, 3].map(i => document.getElementById('qAnswer' + i).value.trim());
+      const time = parseInt(document.getElementById('qTime').value, 10) || 20;
+      const correctIdx = Array.from(document.querySelectorAll('.correct-toggle'))
+        .findIndex(t => t.classList.contains('active'));
+      if (!text || answers.some(a => !a)) return;
+      gameState.questions.push({ text, answers, correct: correctIdx < 0 ? 0 : correctIdx, time });
+      document.getElementById('qTextInput').value = '';
+      [0, 1, 2, 3].forEach(i => { document.getElementById('qAnswer' + i).value = ''; });
+      document.getElementById('qTime').value = 20;
+      renderQList();
+    }
+
+    function renderQList() {
+      const list = document.getElementById('qList');
+      list.innerHTML = '';
+      gameState.questions.forEach((q, i) => {
+        const item = document.createElement('div');
+        item.className = 'q-item';
+        item.innerHTML = '<span>' + escapeHtml((i + 1) + '. ' + q.text) +
+          ' <small style="color:var(--muted)">' + q.time + 's</small></span><button class="q-del">Delete</button>';
+        item.querySelector('.q-del').addEventListener('click', () => {
+          gameState.questions.splice(i, 1);
+          renderQList();
+        });
+        list.appendChild(item);
+      });
+      document.getElementById('qCount').textContent = gameState.questions.length + ' question(s)';
+      document.getElementById('qBadge').textContent = gameState.questions.length ?
+        '(' + gameState.questions.length + ')' : '';
+    }
+
+    document.getElementById('addQBtn').addEventListener('click', addQuestion);
+
+    // ---------- Save / load game config ----------
+    function saveConfig() {
+      const isLocalStorageAvailable = (function () {
+        try { return !!window.localStorage; } catch (e) { return false; }
+      })();
+      const config = {
+        pinCode: gameState.pinCode,
+        selectedModes: Array.from(gameState.selectedModes),
+        questions: gameState.questions
+      };
+      const json = JSON.stringify(config, null, 2);
+      if (isLocalStorageAvailable) {
+        try { localStorage.setItem('game-builder-config', json); } catch (e) { /* storage full or blocked */ }
+      }
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'game-config.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function loadConfigText(json) {
+      try {
+        const config = JSON.parse(json);
+        if (config.pinCode) {
+          gameState.pinCode = config.pinCode;
+          document.getElementById('pinCode').textContent = gameState.pinCode;
+          document.getElementById('pinStatus').textContent = 'Pin code restored';
+        }
+        gameState.selectedModes = new Set(config.selectedModes || []);
+        gameState.questions = Array.isArray(config.questions) ? config.questions : [];
+        document.querySelectorAll('.mode-card').forEach(card => {
+          card.classList.toggle('selected', gameState.selectedModes.has(card.dataset.mode));
+        });
+        renderQList();
+        updateModeChips();
+      } catch (e) {
+        console.warn('Invalid config file');
+      }
+    }
+
+    document.getElementById('saveBtn').addEventListener('click', saveConfig);
+
+    document.getElementById('loadBtn').addEventListener('click', () => {
+      // Open the JSON picker; the change handler below performs the load
+      document.getElementById('loadInput').click();
+    });
+
+    document.getElementById('loadInput').addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => loadConfigText(reader.result);
+      reader.readAsText(file);
+    });
+
+    // Generate pin on load
+    generatePin();
+  </script>
+</body>
+</html>

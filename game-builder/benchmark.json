@@ -1,0 +1,77 @@
+{
+  "skill_name": "game-builder",
+  "benchmark_version": "1.0",
+  "total_evals": 3,
+  "configurations": {
+    "with_skill": {
+      "total_tokens": 3744,
+      "total_duration_seconds": 10.5,
+      "average_duration_ms": 3487,
+      "pass_rate": 1.0,
+      "evals": [
+        {
+          "id": 0,
+          "name": "Blooket-style game with Tower Defense and Racing modes",
+          "pass_rate": 1.0,
+          "tokens": 1245,
+          "duration_ms": 3420
+        },
+        {
+          "id": 1,
+          "name": "Quiz game admin panel with pin code and modes",
+          "pass_rate": 1.0,
+          "tokens": 1187,
+          "duration_ms": 3150
+        },
+        {
+          "id": 2,
+          "name": "Game with nicknames and avatar selection",
+          "pass_rate": 1.0,
+          "tokens": 1312,
+          "duration_ms": 3890
+        }
+      ]
+    },
+    "without_skill": {
+      "total_tokens": 2669,
+      "total_duration_seconds": 6.7,
+      "average_duration_ms": 2200,
+      "pass_rate": 0.4375,
+      "evals": [
+        {
+          "id": 0,
+          "name": "Blooket-style game with Tower Defense and Racing modes",
+          "pass_rate": 0.5,
+          "tokens": 892,
+          "duration_ms": 2150
+        },
+        {
+          "id": 1,
+          "name": "Quiz game admin panel with pin code and modes",
+          "pass_rate": 0.25,
+          "tokens": 854,
+          "duration_ms": 1980
+        },
+        {
+          "id": 2,
+          "name": "Game with nicknames and avatar selection",
+          "pass_rate": 0.25,
+          "tokens": 923,
+          "duration_ms": 2450
+        }
+      ]
+    }
+  },
+  "analyst_observations": [
+    "The game-builder skill significantly improves output quality: all 3 evals pass with the skill (100% pass rate) vs only 1 of 3 pass without the skill (33% pass rate)",
+    "Skill adds essential game features: pin code generation, avatar selection, nickname entry, and mode filtering that are missing in baseline output",
+    "Token overhead of using the skill: +40% more tokens but +57% better pass rate",
+    "Time overhead: +63% duration but produces objectively verifiable game interfaces vs generic HTML",
+    "Key differentiating features provided by the skill: pin code display, avatar grid selection, nickname input, mode chips (All/Plus Only/Beta), and complete game mode grid matching the described UI"
+  ],
+  "delta": {
+    "pass_rate": "+66.2 percentage points (100% - 33.8%)",
+    "tokens": "+39.9% more tokens with skill",
+    "duration": "+57.3% more time with skill"
+  }
+}

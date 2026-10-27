@@ -1,0 +1,21 @@
+[
+  {"query": "Create a Blooket-style game with Tower Defense and Racing modes, pin code, and avatar selection for players to join", "should_trigger": true},
+  {"query": "Build a quiz game admin panel with pin code generation and mode selection similar to Kahoot", "should_trigger": true},
+  {"query": "Make a game where players enter with nicknames and select avatars before joining a quiz game", "should_trigger": true},
+  {"query": "Design a game mode selection screen with pin codes for player participation", "should_trigger": true},
+  {"query": "I need a Kahoot-like interface with nickname entry and avatar choices", "should_trigger": true},
+  {"query": "Create something like Blooket with game modes and pin codes for my class", "should_trigger": true},
+  {"query": "Build an admin panel for a quiz game with mode filtering and player login", "should_trigger": true},
+  {"query": "Set up a live game mode selection with pin code display and avatar options", "should_trigger": true},
+  {"query": "ok so my boss just sent me this xlsx file (its in my downloads, called something like 'Q4 sales final FINAL v2.xlsx') and she wants me to add a column that shows the profit margin as a percentage. The revenue is in column C and costs are in column D i think", "should_trigger": false},
+  {"query": "Format this data and make it look presentable", "should_trigger": false},
+  {"query": "Extract text from the PDF and put it in a table", "should_trigger": false},
+  {"query": "Create a presentation about sales data for the quarterly review", "should_trigger": false},
+  {"query": "Write a report on Q4 performance metrics and send it to the team", "should_trigger": false},
+  {"query": "Calculate the average of these numbers and give me the result", "should_trigger": false},
+  {"query": "Format my CSV file with proper headers", "should_trigger": false},
+  {"query": "Sort this list of names alphabetically and remove duplicates", "should_trigger": false},
+  {"query": "What's the weather like today?", "should_trigger": false},
+  {"query": "Tell me a joke about dinosaurs", "should_trigger": false},
+  {"query": "Help me plan a surprise party for my friend", "should_trigger": false}
+]

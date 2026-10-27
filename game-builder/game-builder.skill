@@ -1,0 +1,116 @@
+---
+name: game-builder
+description: >
+  Build Blooket- and Kahoot-style quiz games with admin panels, pin codes,
+  player login, nickname and avatar selection, and game options. Trigger
+  this skill whenever the user mentions building a quiz game, quiz interface,
+  game mode selection, or anything resembling Blooket/Kahoot.
+compatibilities: []
+---
+# Game Builder Skill
+
+A skill for creating Blooket- and Kahoot-style quiz game interfaces.
+
+## What this skill enables Claude to do
+
+Create fully functional Blooket- and Kahoot-style quiz game interfaces with the
+following features:
+
+- **Admin panel** for game mode selection and configuration
+- **Pin code generation** for activity participation
+- **Player login** via generated list
+- **Nickname (alias) entry** when joining a game
+- **Avatar selection** before entering the game
+- **Game options** similar to Blooket and Kahoot (towers, monsters, racing,
+  etc.)
+
+## When to trigger this skill
+
+Use this skill whenever the user says things like:
+
+- "Build a Blooket-style game"
+- "Create a quiz game interface"
+- "Make a game mode selection screen"
+- "I need a game with pin codes and player login"
+- "Create something like Kahoot or Blooket"
+- "Build a game where players enter with nicknames and avatars"
+- "Design a game admin panel with mode selection"
+
+## Input format
+
+The user will typically provide:
+
+1. **Game theme or style** (Blooket, Kahoot, custom)
+2. **List of game modes** to include (from the standard set: Candy Quest,
+   Fishing Frenzy, Cyber Hack, Tag or Treat, Claw Mania, Busy Bees, Mini Mine,
+   Star Grazer, Laser Tag, Coco Cabana, Tower Defense 2, Monster Brawl, Deceptive
+   Dinos, Battle Royale, Tower Defense, Cafe, Factory, Racing, Blook Rush,
+   Classic, plus any custom modes)
+3. **Configuration options** (pin code, avatar choices, nickname settings, etc.)
+4. **Any custom content** (questions, answers, themes)
+
+## Output format
+
+Claude should produce:
+
+1. **HTML/CSS/JavaScript** for the game interface
+2. **Admin panel** configuration
+3. **Pin code generation** logic
+4. **Player login** screen
+5. **Avatar selection** UI
+6. **Game mode selection** grid
+7. **Additional game screens** (results, etc.)
+
+The output should be a complete, self-contained HTML file with embedded CSS
+and JavaScript that can be opened in a browser.
+
+## Example workflow
+
+```
+User: "Build a Blooket-style game with tower defense and racing modes"
+
+Skill triggers and produces:
+- HTML file with game mode selection screen
+- Admin panel to generate pin codes
+- Player login with nickname and avatar choice
+- Two game modes: Tower Defense and Racing
+- Pin code display for players to join
+```
+
+## Implementation guidelines
+
+- Keep the skill description pushy - include both what the skill does AND
+  specific contexts for when to use it
+- Include all "when to use" info in the description, not in the body
+- Make the output visually matching the described UI (dark purple background,
+  rounded square icons, 4-row grid of game mode buttons, etc.)
+- Include pin code generation functionality
+- Include nickname/avatar entry screens
+- Include game mode options similar to Blooket/Kahoot
+- The skill should handle both the admin setup and player joining flow
+
+## Test cases to consider
+
+1. "Create a quiz game with Blooket-style modes"
+2. "Build a game admin panel with pin code and avatar selection"
+3. "Make a Kahoot-like interface with nicknames and game modes"
+
+## Bundled Resources
+
+- **assets/index.html**: Complete demo HTML template featuring the game mode
+  selection screen, pin code display, player login with avatar selection, and
+  all 20 game modes from the description with correct logos, descriptions, and
+  PLUS Only/Beta badges.
+
+- **evals/evals.json**: 3 test case definitions for skill evaluation
+
+- **benchmark.json**: Quantitative comparison between skill and baseline
+
+- **benchmark.md**: Analyst observations and per-eval comparison
+
+- **assets/eval_review.html**: Static eval review interface for triggering
+  accuracy optimization
+
+## Version
+
+1.0.0
